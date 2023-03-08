@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+# from sy.serializers import
 from pathlib import Path
 import os
 from datetime import timedelta
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'HS',
     'sy',
     'Core',
+    # 'qrcode',
 
 ]
 
@@ -138,11 +139,12 @@ REST_FRAMEWORK = {
 
 
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.BasePermission',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+    # ),
 }
 
 
@@ -150,17 +152,20 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    # It will work instead of the default serializer(TokenObtainPairSerializer).
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.MyTokenObtainPairSerializer",
+    # ...
 }
 
-# REST_FRAMWORK = {
-#     'COERCE_DECIMAL_TO_STRING': Falses
-# }
+REST_FRAMWORK = {
+    'COERCE_DECIMAL_TO_STRING': False
+}
 
-AUTH_USER_MODEL = 'Core.User'
+AUTH_USER_MODEL = 'sy.User'
 
 
 DJOSER = {
     'SERIALIZERS': {
-        'user_create': 'Core.serializers.UserCreateSerializer',
+        'user_create': 'sy.serializers.Userserializers',
         'current_user': 'Core.serializers.UserSerializer'}
 }

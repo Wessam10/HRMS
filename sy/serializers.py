@@ -1,35 +1,56 @@
 from rest_framework import serializers
-from .models import Review, Company_R, Financial, Notfactions, Rating, Vacations, Attendance, Positions, Departments, Managers
-from Core.models import User
+from .models import Review, User, info_resignation, Company, Financial, Notfactions, Rating, Vacations, Attendance, Positions, Departments
+from .models import Employee
+from django.contrib.auth.hashers import make_password
+from . import models
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from django.contrib.auth.models import Group
 
 
-class Rulesserializers (serializers.ModelSerializer):
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['is_hr'] = user.is_hr
+
+        # ...
+
+        return token
+
+
+def hashPassword(password: str) -> str:
+    if not password == None:
+        return make_password(password)
+    return None
+
+
+class Companyserializers (serializers.ModelSerializer):
     class Meta:
-        model = Company_R
-        fields = ['time_for_coming', 'living_time', 'disount_daily',
-                  'disount_monthly', 'target_monthly']
+        model = Company
+        fields = ['companyName', 'address', 'phone', 'email', 'industryType',
+                  'establishedDate', 'website', 'startTime', 'endTime', ]
 
 
 class Financialserializers (serializers.ModelSerializer):
-    # salary = serializers.Userserializers
-    # salary_day = salary/30
-    # final_Salary = salary_day
     class Meta:
         model = Financial
-        fields = ['bouns', 'discount']
+        fields = ['bouns', 'discount', 'salary', 'accepted', 'pre_payment']
 
 
 class Notfactionsserializers (serializers.ModelSerializer):
     class Meta:
         model = Notfactions
-        fields = ['Announcment_Title', 'Announcment_Content']
+        fields = ['Announcment_Title', 'Announcment_Content', 'is_read']
 
 
 class Vacationsserializers (serializers.ModelSerializer):
     class Meta:
         model = Vacations
-        fields = ['vacation_type', 'vacation_reason',
-                  'vacation_reason1', 'vacation_status', 'vacation_date']
+        fields = ['user_id', 'vacation_type', 'vacation_reason',
+                  'vacation_reason1', 'vacation_date', 'status']
 
 
 class Ratingserializers (serializers.ModelSerializer):
@@ -38,36 +59,57 @@ class Ratingserializers (serializers.ModelSerializer):
         fields = ['Number_rating', 'respect']
 
 
+class Userserializers(serializers.ModelSerializer):
+
+    def create(self, validtated_data):
+        validtated_data['password'] = hashPassword(
+            validtated_data['password'])
+        user = models.User(**validtated_data)
+        user.save()
+        if validtated_data['is_hr']:
+            group = Group.objects.get(name='HR')
+        else:
+            group = Group.objects.get(name='Employee')
+        user.groups.add(group)
+        print('done !')
+        return user
+
+    class Meta:
+        model = User
+        fields = ['is_hr', 'username', 'password',
+                  'fullName', 'email', 'birthDate', 'gender']
+
+
 class Positionsserializers (serializers.ModelSerializer):
     class Meta:
         model = Positions
         fields = ['id', 'postions_name']
 
+    def create(self, validated_data):
+        return super().create(validated_data)
+
 
 class Attendanceserializers (serializers.ModelSerializer):
     class Meta:
         model = Attendance
-        fields = ['name']
+        fields = ['attendanceStatus', 'date', 'clockInTime', 'clockInLatitude',
+                  'clockInLongitude', 'clockOutTime', 'clockOutLatitude', 'clockOutLongitude']
+
+
+class Employeeserializers (serializers.ModelSerializer):
+    user_id = Userserializers
+
+    class Meta:
+        model = Employee
+        fields = ['user_id', 'phoneNumber', 'emp_date', 'address', 'workdays',
+                  'photo', 'company', 'positions', 'department']
 
 
 class Departmentsserializers (serializers.ModelSerializer):
+
     class Meta:
         model = Departments
-        fields = ['id', 'name']
-
-
-class Userserializers (serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ['id',  'full_name', 'email',
-                  'phone_number', 'birth_date', 'gender', 'emp_date', 'address', 'is_hr', 'salary', 'positions', 'department']
-
-
-class Managersserializers (serializers.ModelSerializer):
-    class Meta:
-        model = Managers
-        fields = ['user_id', 'department']
+        fields = ['id', 'name', 'company_id']
 
 
 class Reviewserializers (serializers.ModelSerializer):
@@ -75,3 +117,11 @@ class Reviewserializers (serializers.ModelSerializer):
         model = Review
         fields = ['id', 'user_id', 'date',
                   'description', 'name', ]
+
+
+class info_resignationserializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = info_resignation
+        fields = ['resignation', 'accepted',
+                  ]

@@ -1,35 +1,32 @@
-from django.db import models
-from sy.models import Positions, Departments
-from django.contrib.auth.models import AbstractUser
-# Create your models here.
+# from django.db import models
+# from sy.models import Positions, Departments
+
+# # Create your models here.
 
 
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
+# class User(models.Model):
+#     GENDER_CHOICES = (
+#         ('M', 'Male'),
+#         ('F', 'Female'),
+#     )
+#     trans_living_payment_CHOICES = (
+#         ('',)
+#     )
 
-    def __str__(self):
-        return self.username
+#     username = models.CharField(
+#         max_length=255,   unique=True, blank=True, null=True,)
+#     password = models.CharField(max_length=255)
+#     fullName = models.CharField(max_length=255)
+#     email = models.EmailField(max_length=255)
+#     phone_number = models.PositiveIntegerField()
+#     birthDate = models.DateTimeField(blank=True)
+#     gender = models.CharField(
+#         max_length=1, choices=GENDER_CHOICES)
+#     emp_date = models.DateTimeField(auto_now_add=True)
+#     address = models.CharField(max_length=255)
+#     is_hr = models.BooleanField(null=True)
+#     positions = models.ForeignKey(Positions, on_delete=models.CASCADE)
+#     department = models.ForeignKey(Departments, on_delete=models.CASCADE)
 
-    GENDER_CHOICES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-    )
-    trans_living_payment_CHOICES = (
-        ('',)
-    )
-
-    user_name = models.CharField(max_length=255)
-    full_name = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255)
-    phone_number = models.PositiveIntegerField(null=True)
-    birth_date = models.DateTimeField(null=True)
-    gender = models.CharField(
-        max_length=1, choices=GENDER_CHOICES, null=True)
-    emp_date = models.DateTimeField(auto_now_add=True, null=True)
-    address = models.CharField(max_length=255, null=True)
-    is_hr = models.BooleanField()
-    salary = models.PositiveIntegerField(null=True)
-    positions = models.ForeignKey(
-        Positions, on_delete=models.CASCADE, related_name='user_postions', null=True)
-    department = models.ForeignKey(
-        Departments, on_delete=models.DO_NOTHING, related_name='user_department', null=True)
+#     def __str__(self):
+#         return self.name
